@@ -1,0 +1,19 @@
+{
+  "name": "Facturas",
+  "version": "0.1.0",
+  "description": "Sorteo para ver quien va a comprar facturas",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app"
+  },
+  "keywords": [
+    "sorteo",
+    "mail",
+    "facturas"
+  ],
+  "author": "Sergio Daniel Xalambrí <sergio@xalambri.com.ar>",
+  "license": "MIT",
+  "dependencies": {
+    "nodemailer": "^1.2.0"
+  }
+}
