@@ -18,6 +18,9 @@ var candidatos = [
 // elegido
 var elegido = candidatos[Math.floor(Math.random() * candidatos.length)];
 
+// mostramos en la consola el elegido
+console.log('Elegido: ' + elegido);
+
 // mails a los que se va a avisar
 var mails = [
   'Receptor 1 <usuario@dominio.com>',
@@ -34,9 +37,9 @@ var mailOptions = {
 
 // Enviar mail
 transporter.sendMail(mailOptions, function(error, info){
-    if (error){
-        console.log(error);
-    } else {
-        console.log('Mensaje enviado: ' + info.response);
-    }
+  if (error){
+    console.log(error);
+  } else {
+    console.log('Mensaje enviado: ' + info.response);
+  }
 });
