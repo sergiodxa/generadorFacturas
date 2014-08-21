@@ -1,45 +1,74 @@
+var fs         = require('fs');
 var nodemailer = require('nodemailer');
 
-// create reusable transporter object using SMTP transport
-var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'usuario@dominio.com',
-        pass: 'password'
-    }
-});
+// si esta seteado la configuración de autenticaçión entonces retornamos el tranporter de nodemailer
+function crearTransporter (authData) {
+  var defaultData =  {
+    "user": "usuario@dominio.com",
+    "pass": "password"
+  };
 
-// candidadots a ir a comprar facturas
-var candidatos = [
-  'Opción 1',
-  'Opción 2'
-];
-
-// elegido
-var elegido = candidatos[Math.floor(Math.random() * candidatos.length)];
-
-// mostramos en la consola el elegido
-console.log('Elegido: ' + elegido);
-
-// mails a los que se va a avisar
-var mails = [
-  'Receptor 1 <usuario@dominio.com>',
-  'Receptor 2 <usuario@dominio.com>'
-];
-
-// Opciones del mail
-var mailOptions = {
-    from: 'Enviador <usuario@dominio.com>',
-    to: mails,
-    subject: 'Facturas',
-    text: 'Hoy le toca a ' + elegido + ' ir a comprar facturas.'
+  if (authData === defaultData) {
+    return nodemailer.createTransport({
+      service: "gmail",
+      auth   : authData
+    });
+  } else {
+    return false;
+  };
 };
 
-// Enviar mail
-transporter.sendMail(mailOptions, function(error, info){
-  if (error){
-    console.log(error);
+// retornamos al candidato elegido
+function elegirCandidato (candidatos) {
+  return candidatos[Math.floor(Math.random() * candidatos.length)];
+};
+
+// retornamos la lista de mails armados de forma que quede:
+// "Nombre del receptor <usuario@dominio.com>"
+function listarMails (mails) {
+  var lista = [];
+
+  for (var i = 0; i < mails.length; i++) {
+    lista.push(mails.name + ' <' + mails.mail + '>');
+  };
+
+  return lista;
+};
+
+// leemos el archivo config.json con encode utf-8
+fs.readFile(__dirname + '/config.json', 'utf8', function (err, data) {
+  if (err) {
+    console.log('Error: ' + err);
+
+    return;
+  };
+
+  // guardamos en config los datos del archivo config.json parseado
+  config = JSON.parse(data);
+
+  // elegimos a quien va a comprar las facturas
+  var elegido = elegirCandidato(config.candidatos);
+
+  // configuramos el transporter de nodemailers
+  var transporter = crearTransporter(data.auth);
+
+  if (transporter !== false) {
+    // armamos la lista de mails
+    var mails = listarMails(config.mails);
+
+    transporter.sendMail({
+      from: 'Enviador <usuario@dominio.com>',
+      to: mails,
+      subject: 'Facturas',
+      text: 'Hoy le toca a ' + elegido + ' ir a comprar facturas.'
+    }, function(err, info){
+      if (err){
+        console.error(err);
+      } else {
+        console.log('Mensaje enviado: ' + info.response);
+      }
+    });
   } else {
-    console.log('Mensaje enviado: ' + info.response);
+    console.log(elegido);
   }
 });

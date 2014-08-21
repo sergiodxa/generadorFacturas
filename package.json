@@ -1,6 +1,6 @@
 {
   "name": "Facturas",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Sorteo para ver quien va a comprar facturas",
   "main": "app.js",
   "scripts": {
