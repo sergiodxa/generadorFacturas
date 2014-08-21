@@ -4,13 +4,13 @@ var nodemailer = require('nodemailer');
 // si esta seteado la configuración de autenticaçión entonces retornamos el tranporter de nodemailer
 function crearTransporter (authData) {
   var defaultData =  {
-    "user": "usuario@dominio.com",
-    "pass": "password"
+    'user': 'usuario@dominio.com',
+    'pass': 'password'
   };
 
   if (authData === defaultData) {
     return nodemailer.createTransport({
-      service: "gmail",
+      service: 'gmail',
       auth   : authData
     });
   } else {
@@ -69,6 +69,6 @@ fs.readFile(__dirname + '/config.json', 'utf8', function (err, data) {
       }
     });
   } else {
-    console.log(elegido);
+    console.log('Hoy le toca a ' + elegido + ' ir a comprar facturas.');
   }
 });
