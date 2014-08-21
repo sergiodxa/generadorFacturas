@@ -8,7 +8,7 @@ function crearTransporter (authData) {
     'pass': 'password'
   };
 
-  if (authData === defaultData) {
+  if (authData !== defaultData) {
     return nodemailer.createTransport({
       service: 'gmail',
       auth   : authData
