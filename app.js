@@ -38,7 +38,7 @@ function listarMails (mails) {
 // leemos el archivo config.json con encode utf-8
 fs.readFile(__dirname + '/config.json', 'utf8', function (err, data) {
   if (err) {
-    console.log('Error: ' + err);
+    console.error('Error: ' + err);
 
     return;
   };
