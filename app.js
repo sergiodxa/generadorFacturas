@@ -1,4 +1,4 @@
-var fs         = require('fs');
+var config     = require('./config');
 var nodemailer = require('nodemailer');
 var redis      = require('redis');
 var client     = redis.createClient();
@@ -19,7 +19,7 @@ client.get('ultimoComprador', function (err, res) {
   }
 });
 
-// si esta seteado la configuración de autenticaçión entonces retornamos el tranporter de nodemailer
+// si esta seteado la configuración de autenticación entonces retornamos el tranporter de nodemailer
 function crearTransporter (authData) {
   var defaultData =  {
     'user': 'usuario@dominio.com',
@@ -80,48 +80,70 @@ function comprobarUltimo (candidatos, elegido, callback) {
   });
 };
 
-// leemos el archivo config.json con encode utf-8
-fs.readFile(__dirname + '/config.json', 'utf8', function (err, data) {
-  if (err) {
-    console.error('Error: ' + err);
 
-    return;
-  };
-
-  // guardamos en config los datos del archivo config.json parseado
-  config = JSON.parse(data);
-
-  // elegimos a quien va a comprar las facturas
-  comprobarUltimo(config.candidatos, null, function (err, elegido) {
+// guardamos en un objeto JSON la cantidad de veces que cada candidato fue a
+// a comprar facturas
+function guardarCantidad (elegido) {
+  client.get('facturasEstadistica', function (err, res) {
     if (err) {
-      console.error(err);
-      return;
+      return err;
     } else {
-      // configuramos el transporter de nodemailers
-      var transporter = crearTransporter(data.auth);
+      var json;
 
-      if (transporter === false) {
-        // armamos la lista de mails
-        var mails = listarMails(config.mails);
+      if (res)  {
+        json = JSON.parse(res);
 
-        // mandamos el mail
-        transporter.sendMail({
-          from: 'Enviador <usuario@dominio.com>',
-          to: mails,
-          subject: 'Facturas',
-          text: 'Hoy le toca a ' + elegido + ' ir a comprar facturas.'
-        }, function(err, info){
-          if (err){
-            console.error(err);
-          } else {
-            // si el mensaje se envió correctamente lo indicamos en la pantalla
-            console.log('Mensaje enviado: ' + info.response);
-            console.log('Hoy le toca a ' + elegido + ' ir a comprar facturas.');
-          }
-        });
+        if (json[elegido]) {
+          json[elegido] = parseInt(json[elegido]) + 1;
+        } else {
+          json[elegido] = 1;
+        }
       } else {
-        console.log('Hoy le toca a ' + elegido + ' ir a comprar facturas.');
+        json = {};
+
+        json[elegido] = 1;
       }
-    };
+
+      client.set('facturasEstadistica', JSON.stringify(json));
+
+      return true;
+    }
   });
+};
+
+
+// elegimos a quien va a comprar las facturas
+comprobarUltimo(config.candidatos, null, function (err, elegido) {
+  if (err) {
+    console.error(err);
+    return;
+  } else {
+    guardarCantidad(elegido);
+
+    // configuramos el transporter de nodemailers
+    var transporter = crearTransporter(config.auth);
+
+    if (transporter === false) {
+      // armamos la lista de mails
+      var mails = listarMails(config.mails);
+
+      // mandamos el mail
+      transporter.sendMail({
+        from: 'Enviador <usuario@dominio.com>',
+        to: mails,
+        subject: 'Facturas',
+        text: 'Hoy le toca a ' + elegido + ' ir a comprar facturas.'
+      }, function(err, info){
+        if (err){
+          console.error(err);
+        } else {
+          // si el mensaje se envió correctamente lo indicamos en la pantalla
+          console.log('Mensaje enviado: ' + info.response);
+          console.log('Hoy le toca a ' + elegido + ' ir a comprar facturas.');
+        }
+      });
+    } else {
+      console.log('Hoy le toca a ' + elegido + ' ir a comprar facturas.');
+    }
+  };
 });
