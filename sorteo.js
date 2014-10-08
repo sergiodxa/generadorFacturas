@@ -1,4 +1,5 @@
 var config     = require('./config');
+var colors     = require('colors');
 var nodemailer = require('nodemailer');
 var redis      = require('redis');
 var client     = redis.createClient();
@@ -66,7 +67,7 @@ function comprobarUltimo (candidatos, elegido, callback) {
       callback(err);
     } else {
       if (elegido === res.toString()) {
-        console.log('El candidato ' + elegido + ' fue la semana pasada, volviendo a sortear...');
+        console.log(colors.bold('El candidato ' + elegido + ' fue la semana pasada, volviendo a sortear...'));
 
         elegirCandidato(candidatos, callback);
       } else if (elegido === null) {
@@ -120,6 +121,8 @@ comprobarUltimo(config.candidatos, null, function (err, elegido) {
   } else {
     guardarCantidad(elegido);
 
+    var mensaje = colors.bold('Hoy le toca a ' + elegido.green + ' ir a comprar facturas.');
+
     // configuramos el transporter de nodemailers
     var transporter = crearTransporter(config.auth);
 
@@ -138,12 +141,12 @@ comprobarUltimo(config.candidatos, null, function (err, elegido) {
           console.error(err);
         } else {
           // si el mensaje se envió correctamente lo indicamos en la pantalla
-          console.log('Mensaje enviado: ' + info.response);
-          console.log('Hoy le toca a ' + elegido + ' ir a comprar facturas.');
+          console.log(color.bold('Mensaje enviado: ' + info.response));
+          console.log(mensaje);
         }
       });
     } else {
-      console.log('Hoy le toca a ' + elegido + ' ir a comprar facturas.');
+      console.log(mensaje);
     }
   };
 });
