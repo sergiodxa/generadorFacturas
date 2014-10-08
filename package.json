@@ -4,7 +4,8 @@
   "description": "Sorteo para ver quien va a comprar facturas",
   "main": "app.js",
   "scripts": {
-    "start": "node app"
+    "sorteo": "node sorteo",
+    "stats": "node stats"
   },
   "keywords": [
     "sorteo",
@@ -14,6 +15,7 @@
   "author": "Sergio Daniel Xalambrí <sergio@xalambri.com.ar>",
   "license": "MIT",
   "dependencies": {
+    "colors": "^1.0.2",
     "nodemailer": "^1.2.0",
     "redis": "^0.12.1"
   }

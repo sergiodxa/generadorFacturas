@@ -133,8 +133,8 @@ comprobarUltimo(config.candidatos, null, function (err, elegido) {
         to: mails,
         subject: 'Facturas',
         text: 'Hoy le toca a ' + elegido + ' ir a comprar facturas.'
-      }, function(err, info){
-        if (err){
+      }, function(err, info) {
+        if (err) {
           console.error(err);
         } else {
           // si el mensaje se envió correctamente lo indicamos en la pantalla
